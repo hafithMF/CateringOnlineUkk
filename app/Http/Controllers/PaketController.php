@@ -58,9 +58,9 @@ class PaketController extends Controller
             'jumlah_pax' => 'required|integer|min:1',
             'harga_paket' => 'required|numeric|min:1000',
             'deskripsi' => 'required|string',
-            'foto1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'foto2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'foto3' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto1' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
+            'foto2' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'foto3' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         $data = $request->only([
@@ -75,10 +75,13 @@ class PaketController extends Controller
             if ($request->hasFile($fotoField)) {
                 $file = $request->file($fotoField);
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('pakets', $filename, 'public');
-                $data[$fotoField] = $path; 
                 
-                Log::info("File {$fotoField} uploaded:", ['path' => $path]);
+                // Simpan di public/pakets/
+                $publicPath = 'pakets';
+                $file->move(public_path($publicPath), $filename);
+                $data[$fotoField] = $publicPath . '/' . $filename;
+                
+                Log::info("File {$fotoField} uploaded:", ['path' => $data[$fotoField]]);
             } else {
                 Log::info("File {$fotoField} not uploaded");
             }
@@ -126,9 +129,9 @@ class PaketController extends Controller
             'jumlah_pax' => 'required|integer|min:1',
             'harga_paket' => 'required|numeric|min:1000',
             'deskripsi' => 'required|string',
-            'foto1' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'foto2' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'foto3' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto1' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'foto2' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'foto3' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         $data = $request->only([
@@ -139,14 +142,18 @@ class PaketController extends Controller
 
         foreach (['foto1', 'foto2', 'foto3'] as $fotoField) {
             if ($request->hasFile($fotoField)) {
-                if ($paket->$fotoField) {
-                    Storage::disk('public')->delete($paket->$fotoField);
+                // Hapus file lama jika ada
+                if ($paket->$fotoField && file_exists(public_path($paket->$fotoField))) {
+                    unlink(public_path($paket->$fotoField));
                 }
                 
                 $file = $request->file($fotoField);
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('pakets', $filename, 'public');
-                $data[$fotoField] = $path;
+                
+                // Simpan di public/pakets/
+                $publicPath = 'pakets';
+                $file->move(public_path($publicPath), $filename);
+                $data[$fotoField] = $publicPath . '/' . $filename;
             }
         }
 
@@ -156,7 +163,7 @@ class PaketController extends Controller
     }
 
     public function destroy($id)
-    {
+    { 
         $user = Auth::guard('web')->user();
         if (!$user->isAdmin() && !$user->isOwner()) {
             return redirect('/dashboard')->with('error', 'Unauthorized access.');
@@ -164,9 +171,10 @@ class PaketController extends Controller
 
         $paket = Paket::findOrFail($id);
         
+        // Hapus file gambar
         foreach (['foto1', 'foto2', 'foto3'] as $foto) {
-            if ($paket->$foto) {
-                Storage::disk('public')->delete($paket->$foto);
+            if ($paket->$foto && file_exists(public_path($paket->$foto))) {
+                unlink(public_path($paket->$foto));
             }
         }
         

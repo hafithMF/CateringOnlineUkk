@@ -52,7 +52,21 @@ class Paket extends Model
             return asset('images/default-paket.jpg');
         }
         
-        return Storage::url($this->foto1);
+        // Cek apakah file ada di public atau storage
+        $publicPath = public_path('pakets/' . basename($this->foto1));
+        if (file_exists($publicPath)) {
+            // Jika file ada di public/pakets/
+            return asset('pakets/' . basename($this->foto1));
+        }
+        
+        // Coba akses dari storage
+        if (Storage::disk('public')->exists($this->foto1)) {
+            return Storage::url($this->foto1);
+        }
+        
+        // Jika tidak ditemukan di kedua lokasi
+        Log::warning('Foto paket tidak ditemukan: ' . $this->foto1);
+        return asset('images/default-paket.jpg');
     }
 
     public function getFoto2UrlAttribute()
@@ -61,7 +75,17 @@ class Paket extends Model
             return null;
         }
         
-        return Storage::url($this->foto2);
+        $publicPath = public_path('pakets/' . basename($this->foto2));
+        if (file_exists($publicPath)) {
+            return asset('pakets/' . basename($this->foto2));
+        }
+        
+        if (Storage::disk('public')->exists($this->foto2)) {
+            return Storage::url($this->foto2);
+        }
+        
+        Log::warning('Foto paket tidak ditemukan: ' . $this->foto2);
+        return null;
     }
 
     public function getFoto3UrlAttribute()
@@ -70,7 +94,17 @@ class Paket extends Model
             return null;
         }
         
-        return Storage::url($this->foto3);
+        $publicPath = public_path('pakets/' . basename($this->foto3));
+        if (file_exists($publicPath)) {
+            return asset('pakets/' . basename($this->foto3));
+        }
+        
+        if (Storage::disk('public')->exists($this->foto3)) {
+            return Storage::url($this->foto3);
+        }
+        
+        Log::warning('Foto paket tidak ditemukan: ' . $this->foto3);
+        return null;
     }
 
     public function scopeByKategori($query, $kategori)
