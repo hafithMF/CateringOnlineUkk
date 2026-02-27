@@ -7,6 +7,7 @@ use App\Models\DetailJenisPembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class JenisPembayaranController extends Controller
 {
@@ -56,8 +57,10 @@ class JenisPembayaranController extends Controller
             'metode_pembayaran' => 'required|string|max:30|unique:jenis_pembayarans,metode_pembayaran',
             'no_rek' => 'nullable|string|max:25',
             'tempat_bayar' => 'nullable|string|max:50',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
+
+        Log::info('Creating new payment method', ['data' => $request->except('logo')]);
 
         $jenisPembayaran = JenisPembayaran::create([
             'metode_pembayaran' => $request->metode_pembayaran,
@@ -73,8 +76,17 @@ class JenisPembayaranController extends Controller
             if ($request->hasFile('logo')) {
                 $file = $request->file('logo');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('public/jenis-pembayaran', $filename);
+                
+                // Simpan di public/jenis-pembayaran/
+                $directory = public_path('jenis-pembayaran');
+                if (!is_dir($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+                
+                $file->move($directory, $filename);
                 $dataDetail['logo'] = $filename;
+                
+                Log::info('Logo uploaded', ['filename' => $filename, 'path' => $directory . '/' . $filename]);
             }
 
             DetailJenisPembayaran::create($dataDetail);
@@ -111,8 +123,10 @@ class JenisPembayaranController extends Controller
             'metode_pembayaran' => 'required|string|max:30|unique:jenis_pembayarans,metode_pembayaran,' . $jenisPembayaran->id,
             'no_rek' => 'nullable|string|max:25',
             'tempat_bayar' => 'nullable|string|max:50',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
+
+        Log::info('Updating payment method', ['id' => $id, 'data' => $request->except('logo')]);
 
         $jenisPembayaran->update([
             'metode_pembayaran' => $request->metode_pembayaran,
@@ -126,15 +140,28 @@ class JenisPembayaranController extends Controller
         ];
 
         if ($request->hasFile('logo')) {
-            // Delete old file if exists
-            if ($detail && $detail->logo) {
-                Storage::delete('public/jenis-pembayaran/' . $detail->logo);
-            }
-            
             $file = $request->file('logo');
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/jenis-pembayaran', $filename);
+            
+            // Simpan di public/jenis-pembayaran/
+            $directory = public_path('jenis-pembayaran');
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+            
+            // Delete old file if exists
+            if ($detail && $detail->logo) {
+                $oldFile = $directory . '/' . $detail->logo;
+                if (file_exists($oldFile)) {
+                    unlink($oldFile);
+                    Log::info('Old logo deleted', ['file' => $oldFile]);
+                }
+            }
+            
+            $file->move($directory, $filename);
             $dataDetail['logo'] = $filename;
+            
+            Log::info('New logo uploaded', ['filename' => $filename]);
         }
 
         if ($detail) {
@@ -159,7 +186,10 @@ class JenisPembayaranController extends Controller
         $details = DetailJenisPembayaran::where('id_jenis_pembayaran', $jenisPembayaran->id)->get();
         foreach ($details as $detail) {
             if ($detail->logo) {
-                Storage::delete('public/jenis-pembayaran/' . $detail->logo);
+                $filePath = public_path('jenis-pembayaran/' . $detail->logo);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
             }
             $detail->delete();
         }

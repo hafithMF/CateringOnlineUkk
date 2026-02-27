@@ -22,7 +22,7 @@ Route::middleware(['guest:web', 'guest:pelanggan'])->group(function () {
     
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
     
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

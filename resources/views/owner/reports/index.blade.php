@@ -192,48 +192,6 @@
                 </table>
             </div>
         </div>
-
-        <!-- Export Section -->
-        <div class="bg-white rounded-xl shadow-md p-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Ekspor Laporan</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="border border-gray-200 rounded-lg p-6 text-center">
-                    <div class="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-file-pdf text-rose-600 text-xl"></i>
-                    </div>
-                    <h3 class="font-bold text-gray-800 mb-2">PDF Report</h3>
-                    <p class="text-gray-600 text-sm mb-4">Ekspor laporan bulanan dalam format PDF</p>
-                    <button onclick="alert('Fitur ekspor akan segera tersedia')"
-                        class="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700">
-                        <i class="fas fa-download mr-2"></i> Unduh PDF
-                    </button>
-                </div>
-
-                <div class="border border-gray-200 rounded-lg p-6 text-center">
-                    <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-file-excel text-emerald-600 text-xl"></i>
-                    </div>
-                    <h3 class="font-bold text-gray-800 mb-2">Excel Report</h3>
-                    <p class="text-gray-600 text-sm mb-4">Ekspor data transaksi dalam format Excel</p>
-                    <button onclick="alert('Fitur ekspor akan segera tersedia')"
-                        class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700">
-                        <i class="fas fa-download mr-2"></i> Unduh Excel
-                    </button>
-                </div>
-
-                <div class="border border-gray-200 rounded-lg p-6 text-center">
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-chart-line text-blue-600 text-xl"></i>
-                    </div>
-                    <h3 class="font-bold text-gray-800 mb-2">Analytics</h3>
-                    <p class="text-gray-600 text-sm mb-4">Lihat analisis data lebih detail</p>
-                    <button onclick="alert('Fitur analytics akan segera tersedia')"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                        <i class="fas fa-chart-bar mr-2"></i> Lihat Analisis
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 
     @push('styles')

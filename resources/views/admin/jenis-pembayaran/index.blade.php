@@ -97,10 +97,42 @@
                                     $detail = $jenis->detailJenisPembayarans->first();
                                 @endphp
                                 @if($detail && $detail->logo)
-                                    <img src="{{ Storage::url('public/jenis-pembayaran/' . $detail->logo) }}" 
-                                         alt="Logo" class="w-8 h-8 mr-3 rounded">
+                                    <!-- Perbaikan path gambar -->
+                                    @php
+                                        // Cek file di beberapa lokasi
+                                        $logoPath = null;
+                                        $publicPath = 'jenis-pembayaran/' . $detail->logo;
+                                        $storagePath = 'public/jenis-pembayaran/' . $detail->logo;
+                                        
+                                        // Cek di public/jenis-pembayaran/
+                                        if (file_exists(public_path($publicPath))) {
+                                            $logoPath = asset($publicPath);
+                                        }
+                                        // Cek di storage
+                                        elseif (Storage::exists($storagePath)) {
+                                            $logoPath = Storage::url($storagePath);
+                                        }
+                                    @endphp
+                                    
+                                    @if($logoPath)
+                                        <img src="{{ $logoPath }}" 
+                                             alt="Logo" 
+                                             class="w-8 h-8 mr-3 rounded object-contain bg-white p-1 border">
+                                        <!-- Debug info -->
+                                        <div class="text-xs text-gray-500 hidden debug-info">
+                                            Path: {{ $detail->logo }}<br>
+                                            URL: {{ $logoPath }}
+                                        </div>
+                                    @else
+                                        <div class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center mr-3 border">
+                                            <i class="fas fa-image text-gray-400 text-sm"></i>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            File tidak ditemukan
+                                        </div>
+                                    @endif
                                 @else
-                                    <div class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
+                                    <div class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center mr-3 border">
                                         <i class="fas fa-money-bill-wave text-gray-400"></i>
                                     </div>
                                 @endif
@@ -119,6 +151,10 @@
                                         <div class="text-sm text-gray-800">
                                             {{ $detail->tempat_bayar ?? 'Bank' }}: 
                                             <span class="font-mono text-gray-600">{{ $detail->no_rek ?? '-' }}</span>
+                                            @if($detail->logo)
+                                                <br>
+                                                <span class="text-xs text-gray-500">File: {{ $detail->logo }}</span>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -165,5 +201,4 @@
             </table>
         </div>
     </div>
-</div>
 @endsection
