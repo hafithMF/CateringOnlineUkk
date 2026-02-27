@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
         DetailJenisPembayaran::create([
             'id_jenis_pembayaran' => $transfer->id,
             'no_rek' => '1234567890',
-            'tempal_bayar' => 'Bank BCA',
+            'tempat_bayar' => 'Bank BCA',
             'logo' => 'bca.png',
         ]);
 
